@@ -1,17 +1,14 @@
 import google.generativeai as genai
 import os
-from dotenv import load_dotenv
 import pytesseract
 from PIL import Image
 import io
 
 
-load_dotenv()
-
 class GoogleGeminiService:
     def __init__(self):
         # Configure the API key for Google Gemini API
-        genai.configure(api_key=os.getenv("API_KEY"))
+        genai.configure(api_key="AIzaSyD6fu5msx3OdVg28EHI89llMYfEjJ0q7Yc")
         self.model = genai.GenerativeModel("gemini-1.5-flash")
 
     def generate(self, prompt):
