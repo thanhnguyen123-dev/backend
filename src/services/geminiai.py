@@ -1,12 +1,9 @@
 import google.generativeai as genai
 import os
-from dotenv import load_dotenv
 import pytesseract
 from PIL import Image
 import io
 
-
-load_dotenv()
 
 class GoogleGeminiService:
     def __init__(self):

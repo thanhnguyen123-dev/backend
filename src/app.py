@@ -5,9 +5,12 @@ from dotenv import load_dotenv
 import requests
 
 import json
+import base64
+from io import BytesIO
+from PIL import Image
 
 from users import UserManager, User
-import services.geminiai as geminiai
+from flask_cors import CORS
 
 api_key = os.getenv("API_KEY") #gemini
 
@@ -23,7 +26,7 @@ load_dotenv()
 
 # Initialize the Flask app
 app = Flask(__name__)
-
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 # Create an instance of the GoogleGeminiService
 gemini_service = GoogleGeminiService()
 
@@ -72,16 +75,32 @@ def generate():
 # call function to transcribe image into text 
 @app.route('/api/query_image', methods=['POST'])
 def query_image():
-    data: dict = request.get_json()
-    user: User = user_manager.get_user(1)
-    image_data: dict = gemini_service.transcribe_image(user, data)
-
-    response: str = gemini_service.query_item(user, image_data)
+    data = request.json
+    if 'image' not in data or 'type' not in data:
+        return jsonify({'error': 'Image data and type are required'}), 400
     
-    if response:
-        return jsonify({'response': response}), HTTP_OK
-    else:
-        return jsonify({'error': 'Unable to generate response'}), 
+    try:
+        # Decode the base64 string
+        img_data = base64.b64decode(data['image'])
+        
+        # Prepare the data for transcribe_image
+        image_data = {
+            'image': img_data,
+            'type': data['type']
+        }
+        
+        # Process the image
+        user = user_manager.get_user(1)
+        transcribed_data = gemini_service.transcribe_image(user, image_data)
+        response = gemini_service.query_item(user, transcribed_data)
+        
+        if response:
+            return jsonify({'response': response}), 200
+        else:
+            return jsonify({'error': 'Unable to generate response'}), 500
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/query_barcode', methods=['POST'])
 def query_barcode():
@@ -105,7 +124,7 @@ def query_barcode():
         product_data = response.json()  # Parse JSON response
         ingredients_text = product_data.get('product', {}).get('ingredients_text', 'No ingredients found.')
         ingredients_list = [ingredient.strip() for ingredient in ingredients_text.split(',')]
-        item_data["ingrediants"] = ingredients_list
+        item_data["ingredients"] = ingredients_list
     else:
         return f"Failed to retrieve product data: {response.status_code}"
     
@@ -116,6 +135,7 @@ def query_barcode():
         return jsonify({'response': response}), HTTP_OK
     else:
         return jsonify({'error': 'Unable to generate response'}), 
+
 
 @app.route('/api/recipes', methods=['GET'])
 def recipes():
