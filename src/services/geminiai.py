@@ -40,6 +40,15 @@ class GoogleGeminiService:
         {"type" : "prescription",
         "prescriptions" [list of prescriptions]}
     """
+    def transcribe_image(self, request):
+        data = request.get_json()
+        image = data.get('image')
+        image_type = data.get('type')
+        
+        string_builder = []
+        
+
+
 
 # def query_food_item(self, user, image):
     """
