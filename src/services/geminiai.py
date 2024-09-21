@@ -1,6 +1,9 @@
 import google.generativeai as genai
 import os
 from dotenv import load_dotenv
+import pytesseract
+from PIL import Image
+import io
 
 load_dotenv()
 
@@ -40,12 +43,28 @@ class GoogleGeminiService:
         {"type" : "prescription",
         "prescriptions" [list of prescriptions]}
     """
-    def transcribe_image(self, request):
+    def transcribe_image(self, user, request):
         data = request.get_json()
-        image = data.get('image')
+        image_bytes = data.get('image')
         image_type = data.get('type')
+
+        
+
+
+
+
         
         string_builder = []
+        if image_type == "food_item":
+            string_builder.append("What are the ingredients of this food item? ")
+            string_builder.append("Return in the dictionary format: {'type': 'food item', 'ingredients': ['ingredient1', 'ingredient2', ...]}")
+        elif image_type == "prescription":
+            string_builder.append("What is the name of the medicine?")
+            string_builder.append("Return in the dictionary format: {'type': 'prescription', 'prescription': ['medicine1', 'medicine2', ...]}")
+        
+        prompt = "".join(string_builder)
+        
+
         
 
 
