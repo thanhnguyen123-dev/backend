@@ -25,7 +25,7 @@ class GoogleGeminiService:
         return extracted_text
 
 
-#TODO:
+    #TODO:
     """
     Transcribes an image based on the type of image (prescription or food item)
     Gives the llm a prompt like: "What are the ingrediants"

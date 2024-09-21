@@ -62,7 +62,6 @@ def generate():
 
     # Generate a response using the Google Gemini service
     response = gemini_service.generate(prompt)
-    print(response['response'])
 
     # Return the response as JSON
     return jsonify({'response': response}), HTTP_OK
