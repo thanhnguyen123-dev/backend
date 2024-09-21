@@ -1,20 +1,21 @@
 import os
 from flask import Flask, request, jsonify
-from services.openai import OpenAIService
+from services.geminiai import GoogleGeminiService
 from dotenv import load_dotenv
 
 import json
 
-load_dotenv()
-
-app = Flask(__name__)
-
-api_key = os.getenv("OPENAI_API_KEY")
-
 HTTP_OK = 200
 HTTP_BAD_REQUEST = 400
 
-openai = OpenAIService(api_key)
+# Load environment variables from .env file
+load_dotenv()
+
+# Initialize the Flask app
+app = Flask(__name__)
+
+# Create an instance of the GoogleGeminiService
+gemini_service = GoogleGeminiService()
 
 @app.route('/')
 def index():
@@ -26,9 +27,20 @@ def api():
 
 @app.route('/api/generate', methods=['POST'])
 def generate():
-    data = request.get_json()
-    prompt = data.get('prompt')
+    # Get the prompt from the request body
+    prompt = request.json.get('prompt')
+
+    # Check if the prompt is missing
     if not prompt:
-        return jsonify({'error': 'prompt is required'}), HTTP_BAD_REQUEST
-    response = openai.generate_text(prompt)
+        return jsonify({'error': 'Prompt is required'}), HTTP_BAD_REQUEST
+
+    # Generate a response using the Google Gemini service
+    response = gemini_service.generate(prompt)
+    print(response['response'])
+
+    # Return the response as JSON
     return jsonify({'response': response}), HTTP_OK
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
