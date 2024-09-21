@@ -35,8 +35,6 @@ class GoogleGeminiService:
         food item example:
         dict = {"type" : "food item",
         "ingrediants": llm_response}
-        items = Item_Manager()
-        return items.add_item(dict)
 
         prescription example:
         {"type" : "prescription",
