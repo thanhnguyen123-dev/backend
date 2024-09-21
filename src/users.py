@@ -22,5 +22,8 @@ class UserManager:
     def get_all_users(self):
         return [vars(user) for user in self.users.values()]
     
-    def add_prescription(self, userid, prescription):
-        return None
+    def update_prescriptions(self, user_id, prescriptions):
+        if user_id in self.users:
+            self.users[user_id].prescriptions.extend(prescriptions)
+            return True
+        return False
