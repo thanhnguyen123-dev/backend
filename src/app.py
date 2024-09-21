@@ -74,9 +74,9 @@ def generate():
 def query_image():
     data: dict = request.get_json()
     user: User = user_manager.get_user(1)
-    image_data: dict = geminiai.transcribe_image(user, data)
+    image_data: dict = gemini_service.transcribe_image(user, data)
 
-    response: str = geminiai.query_item(user, image_data)
+    response: str = gemini_service.query_item(user, image_data)
     
     if response:
         return jsonify({'response': response}), HTTP_OK
@@ -110,7 +110,7 @@ def query_barcode():
         return f"Failed to retrieve product data: {response.status_code}"
     
     user: User = user_manager.get_user(1)
-    response: str = geminiai.query_item(user, item_data)
+    response: str = gemini_service.query_item(user, item_data)
     
     if response:
         return jsonify({'response': response}), HTTP_OK
@@ -120,7 +120,7 @@ def query_barcode():
 @app.route('/api/recipes', methods=['GET'])
 def recipes():
     user: User = user_manager.get_user(1)
-    response: str = geminiai.generate_recipes(user)
+    response: str = gemini_service.generate_recipes(user)
 
     if response:
         return jsonify({'response': response}), HTTP_OK
@@ -130,7 +130,7 @@ def recipes():
 @app.route('/api/dietary_restrictions', methods=['GET'])
 def dietary_restrictions():
     user: User = user_manager.get_user(1)
-    response: str = geminiai.get_dietary_restrictions(user)
+    response: str = gemini_service.get_dietary_restrictions(user)
 
     if response:
         return jsonify({'response': response}), HTTP_OK
