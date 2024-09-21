@@ -7,6 +7,7 @@ import json
 
 from users import UserManager, User
 import services.geminiai as geminiai
+from flask_cors import CORS
 
 api_key = os.getenv("API_KEY") #gemini
 
@@ -22,7 +23,7 @@ load_dotenv()
 
 # Initialize the Flask app
 app = Flask(__name__)
-
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 # Create an instance of the GoogleGeminiService
 gemini_service = GoogleGeminiService()
 
