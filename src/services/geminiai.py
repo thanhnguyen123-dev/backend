@@ -102,5 +102,21 @@ class GoogleGeminiService:
 
         response = self.generate(prompt)
         return response
+
+    def generate_recipes(self, user):
+        allergies = user.allergies
+        conditions = user.conditions
+        prescriptions = user.prescriptions
+        prompt = f"This is a recipe generator. Generate a recipe that is safe for a person with {allergies} allergies, {conditions} conditions, and taking {prescriptions} prescriptions."
+        response = self.generate(prompt)
+
+        return response
     
+    def get_dietary_restriction(self, user):
+        allergies = user.allergies
+        conditions = user.conditions
+        prompt = f"What are the dietary restrictions for a person with {allergies} allergies and {conditions} conditions?"
+        response = self.generate(prompt)
+
+        return response
     
