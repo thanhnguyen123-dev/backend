@@ -2,6 +2,7 @@ import os
 from flask import Flask, request, jsonify
 from services.geminiai import GoogleGeminiService
 from dotenv import load_dotenv
+import requests
 
 import json
 
@@ -77,6 +78,40 @@ def query_image():
     image_data: dict = geminiai.transcribe_image(user, data)
 
     response: str = geminiai.query_item(user, image_data)
+    
+    if response:
+        return jsonify({'response': response}), HTTP_OK
+    else:
+        return jsonify({'error': 'Unable to generate response'}), 
+
+@app.route('/api/query_barcode', methods=['POST'])
+def query_barcode():
+    # Get the barcode from the request JSON
+    data = request.get_json()
+    barcode = data['barcode']
+
+    if not barcode:
+        return jsonify({"error": "Barcode is required"}), 400
+    
+    # URL of the product
+    url = f"https://world.openfoodfacts.net/api/v2/product/{barcode}"
+
+    # Make the GET request
+    response = requests.get(url)
+
+    item_data = {"type": "food item"}
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        product_data = response.json()  # Parse JSON response
+        ingredients_text = product_data.get('product', {}).get('ingredients_text', 'No ingredients found.')
+        ingredients_list = [ingredient.strip() for ingredient in ingredients_text.split(',')]
+        item_data["ingrediants"] = ingredients_list
+    else:
+        return f"Failed to retrieve product data: {response.status_code}"
+    
+    user: User = user_manager.get_user(1)
+    response: str = geminiai.query_item(user, item_data)
     
     if response:
         return jsonify({'response': response}), HTTP_OK
