@@ -42,8 +42,6 @@ def receive_message():
     else:
         return jsonify({"status": "error", "message": "Invalid"}), 400
 
-@app.route('/user/prescription', methods=[])
-
 
 @app.route('/api/generate', methods=['POST'])
 def generate():
@@ -61,6 +59,12 @@ def generate():
     # Return the response as JSON
     return jsonify({'response': response}), HTTP_OK
 
+#request: {"iamge": imagefile,
+#           "type":  prescription/food_item}
+# call function to transcribe image into text 
+@app.route('/api/query_image', methods=['POST'])
+def query_image():
+    return None
 
 if __name__ == '__main__':
     app.run(debug=True)

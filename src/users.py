@@ -8,6 +8,7 @@ class User:
         self.age = user['age']
         self.allergies = user['allergies']
         self.conditions = user['conditions']
+        self.prescriptions = []
 
 class UserManager:
     def __init__(self):
@@ -20,3 +21,6 @@ class UserManager:
 
     def get_all_users(self):
         return [vars(user) for user in self.users.values()]
+    
+    def add_prescription(self, userid, prescription):
+        return None
