@@ -11,7 +11,6 @@ load_dotenv()
 class GoogleGeminiService:
     def __init__(self):
         # Configure the API key for Google Gemini API
-        print(os.getenv("API_KEY"))
         genai.configure(api_key=os.getenv("API_KEY"))
         self.model = genai.GenerativeModel("gemini-1.5-flash")
 

@@ -88,7 +88,7 @@ def generate():
 #request: {"image": imagefile,
 #           "type":  "prescription/food_item"}
 # call function to transcribe image into text 
-@app.route('/api/query_image/<user_id>', methods=['POST'])
+@app.route('/api/query_image/<int:user_id>', methods=['POST'])
 def query_image(user_id):
     data = request.json
     if 'image' not in data or 'type' not in data:
@@ -117,7 +117,7 @@ def query_image(user_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/query_barcode/<user_id>', methods=['POST'])
+@app.route('/api/query_barcode/<int:user_id>', methods=['POST'])
 def query_barcode(user_id):
     # Get the barcode from the request JSON
     data = request.get_json()
@@ -143,7 +143,7 @@ def query_barcode(user_id):
     else:
         return f"Failed to retrieve product data: {response.status_code}"
     
-    user: User = user_manager.get_user(1)
+    user: User = user_manager.get_user(user_id)
     response: str = gemini_service.query_item(user, item_data)
     
     if response:
@@ -152,7 +152,7 @@ def query_barcode(user_id):
         return jsonify({'error': 'Unable to generate response'}), 
 
 
-@app.route('/api/recipes/<user_id>', methods=['GET'])
+@app.route('/api/recipes/<int:user_id>', methods=['GET'])
 def recipes(user_id):
     user: User = user_manager.get_user(user_id)
     response: str = gemini_service.generate_recipes(user)
@@ -162,7 +162,7 @@ def recipes(user_id):
     else:
         return jsonify({'error': 'Unable to generate response'}), 
 
-@app.route('/api/dietary_restrictions/<user_id>', methods=['GET'])
+@app.route('/api/dietary_restrictions/<int:user_id>', methods=['GET'])
 def dietary_restrictions(user_id):
     user: User = user_manager.get_user(user_id)
     response: str = gemini_service.get_dietary_restrictions(user)
