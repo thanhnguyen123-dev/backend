@@ -11,6 +11,9 @@ from PIL import Image
 
 from users import UserManager, User
 
+# Load environment variables from .env file
+load_dotenv()
+
 api_key = os.getenv("API_KEY") #gemini
 
 HTTP_OK = 200
@@ -20,8 +23,7 @@ users = {}
 
 user_manager = UserManager()
 
-# Load environment variables from .env file
-load_dotenv()
+
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -36,7 +38,7 @@ def index():
 def api():
     return "Hello, API!"
 
-@app.route('/user', methods=['POST', 'GET'])
+@app.route('/user', methods=['POST', 'GET', 'PUT'])
 def user_route():
     if request.method == 'POST':
         data = request.get_json()  # Get JSON data from the request
@@ -49,8 +51,23 @@ def user_route():
             return jsonify({"status": "error", "message": "Invalid"}), HTTP_BAD_REQUEST
 
     elif request.method == 'GET':
-        user: User = user_manager.get_user(1)
+        data = request.get_json()
+        user_id = data['user_id']
+        user: User = user_manager.get_user(user_id)
         return jsonify({"status": "success", "users": user.to_dict()}), HTTP_OK
+    
+    elif request.method == 'PUT':
+        data = request.get_json()  # Get JSON data from the request
+        user_id = data.get('user_id')
+        
+        if user_id and all(key in data for key in ['name', 'age', 'allergies', 'conditions', 'prescriptions']):
+            user_info = user_manager.update_user(user_id, data)  # Assuming you have an update_user method
+            user = user_info.to_dict()
+            print(f"User updated: {user_info}")
+            return jsonify({"status": "success", "user": user}), 200  # Use HTTP_OK constant if defined
+        else:
+            return jsonify({"status": "error", "message": "Invalid"}), 400  # Use HTTP_BAD_REQUEST constant if defined
+
 
 
 @app.route('/api/generate', methods=['POST'])
@@ -71,8 +88,8 @@ def generate():
 #request: {"image": imagefile,
 #           "type":  "prescription/food_item"}
 # call function to transcribe image into text 
-@app.route('/api/query_image', methods=['POST'])
-def query_image():
+@app.route('/api/query_image/<user_id>', methods=['POST'])
+def query_image(user_id):
     data = request.json
     if 'image' not in data or 'type' not in data:
         return jsonify({'error': 'Image data and type are required'}), 400
@@ -88,7 +105,7 @@ def query_image():
         }
         
         # Process the image
-        user = user_manager.get_user(1)
+        user = user_manager.get_user(user_id)
         transcribed_data = gemini_service.transcribe_image(user, image_data)
         response = gemini_service.query_item(user, transcribed_data)
         
@@ -100,8 +117,8 @@ def query_image():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/query_barcode', methods=['POST'])
-def query_barcode():
+@app.route('/api/query_barcode/<user_id>', methods=['POST'])
+def query_barcode(user_id):
     # Get the barcode from the request JSON
     data = request.get_json()
     barcode = data['barcode']
@@ -135,9 +152,9 @@ def query_barcode():
         return jsonify({'error': 'Unable to generate response'}), 
 
 
-@app.route('/api/recipes', methods=['GET'])
-def recipes():
-    user: User = user_manager.get_user(1)
+@app.route('/api/recipes/<user_id>', methods=['GET'])
+def recipes(user_id):
+    user: User = user_manager.get_user(user_id)
     response: str = gemini_service.generate_recipes(user)
 
     if response:
@@ -145,9 +162,9 @@ def recipes():
     else:
         return jsonify({'error': 'Unable to generate response'}), 
 
-@app.route('/api/dietary_restrictions', methods=['GET'])
-def dietary_restrictions():
-    user: User = user_manager.get_user(1)
+@app.route('/api/dietary_restrictions/<user_id>', methods=['GET'])
+def dietary_restrictions(user_id):
+    user: User = user_manager.get_user(user_id)
     response: str = gemini_service.get_dietary_restrictions(user)
 
     if response:

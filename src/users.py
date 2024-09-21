@@ -41,6 +41,19 @@ class UserManager:
             return self.users[user_id]
         else:
             return f"User id {user_id} not found."
+        
+    def update_user(self, user_id, data):
+        user = self.get_user(user_id)
+        if user:
+            # Update user information
+            user.name = data.get('name', user.name)
+            user.age = data.get('age', user.age)
+            user.allergies = data.get('allergies', user.allergies)
+            user.conditions = data.get('conditions', user.conditions)
+            user.prescriptions = data.get('prescriptions', user.prescriptions)
+            return user
+        else:
+            raise ValueError("User not found")
     
     def update_prescriptions(self, user_id, prescriptions):
         if user_id in self.users:
