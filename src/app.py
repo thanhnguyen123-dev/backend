@@ -5,8 +5,15 @@ from dotenv import load_dotenv
 
 import json
 
+from users import UserManager
+
+api_key = os.getenv("API_KEY") #gemini
+
 HTTP_OK = 200
 HTTP_BAD_REQUEST = 400
+users = {}
+
+user_manager = UserManager()
 
 # Load environment variables from .env file
 load_dotenv()
@@ -24,6 +31,19 @@ def index():
 @app.route('/api')
 def api():
     return "Hello, API!"
+
+@app.route('/user', methods=['POST'])
+def receive_message():
+    data = request.get_json()  # Get JSON data from the request
+    if data and all(key in data for key in ['name', 'age', 'allergies', 'conditions']):
+        user_info = user_manager.add_user(data)  
+        print(f"User added: {user_info}")
+        return jsonify({"status": "success", "user": user_info}), 200
+    else:
+        return jsonify({"status": "error", "message": "Invalid"}), 400
+
+@app.route('/user/prescription', methods=[])
+
 
 @app.route('/api/generate', methods=['POST'])
 def generate():
