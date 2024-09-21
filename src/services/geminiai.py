@@ -31,7 +31,7 @@ class GoogleGeminiService:
     response (dict): contains an image and an image type 
 
     Returns:
-    generation (ImageItem()): response from the llm
+    generation (dict): response from the llm
         food item example:
         dict = {"type" : "food item",
         "ingrediants": llm_response}

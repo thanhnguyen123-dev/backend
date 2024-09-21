@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import json
 
 from users import UserManager
+import services.geminiai
 
 api_key = os.getenv("API_KEY") #gemini
 
@@ -59,8 +60,8 @@ def generate():
     # Return the response as JSON
     return jsonify({'response': response}), HTTP_OK
 
-#request: {"iamge": imagefile,
-#           "type":  prescription/food_item}
+#request: {"image": imagefile,
+#           "type":  "prescription/food_item"}
 # call function to transcribe image into text 
 @app.route('/api/query_image', methods=['POST'])
 def query_image():
